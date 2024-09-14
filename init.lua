@@ -88,7 +88,7 @@ P.S. You can delete this when you're done too. It's your config now! :)
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
+vim.g.maplocalleader = ','
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
@@ -157,6 +157,8 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+vim.g.vimtex_view_method = 'zathura'
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -204,9 +206,8 @@ vim.keymap.set('v', '<C-_>', ':call nerdcommenter#Comment(0, "toggle")<CR>', { n
 
 vim.keymap.set('n', '<C-q>', '<cmd>lua require("mini.bufremove").delete(0, false)<CR>', { noremap = true, silent = true })
 
--- TODO: Save session
--- TODO: tmux to open terminal on half of screen
--- TODO: LATEX things
+-- TODO: still need to do sesssion nvim
+-- TODO: better git experience, to see easily see diffs in changed files
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -656,6 +657,7 @@ require('lazy').setup({
             },
           },
         },
+        texlab = {},
       }
 
       -- Ensure the servers and tools above are installed
@@ -932,6 +934,7 @@ require('lazy').setup({
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
         additional_vim_regex_highlighting = { 'ruby' },
+        disable = { 'latex' },
       },
       indent = { enable = true, disable = { 'ruby' } },
     },
@@ -959,6 +962,7 @@ require('lazy').setup({
   require 'kickstart.plugins.neo-tree',
   require 'custom.plugins.comment',
   require 'custom.plugins.visual-multi',
+  require 'custom.plugins.vimtex',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
