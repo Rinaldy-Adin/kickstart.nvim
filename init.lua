@@ -114,8 +114,10 @@ vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.expandtab = true
 
-vim.opt.spell = true
-vim.opt.spelllang = 'id,en_us'
+--vim.opt.spell = true
+--vim.opt.spelllang = 'id,en_us'
+
+vim.opt.wrap = false
 
 -- Sync clipboard between OS and Neovim.
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
@@ -203,8 +205,10 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
-vim.keymap.set('n', '<Tab>', '<cmd>w<CR><cmd>bnext<CR>', { desc = 'Move to next buffer' })
-vim.keymap.set('n', '<S-Tab>', '<cmd>w<CR><cmd>bprev<CR>', { desc = 'Move to previous buffer' })
+--vim.keymap.set('n', '<Tab>', '<cmd>w<CR><cmd>bnext<CR>', { desc = 'Move to next buffer' })
+--vim.keymap.set('n', '<S-Tab>', '<cmd>w<CR><cmd>bprev<CR>', { desc = 'Move to previous buffer' })
+vim.keymap.set('n', '<Tab>', '<Cmd>BufferPrevious<CR>', { desc = 'Move to next buffer' })
+vim.keymap.set('n', '<S-Tab>', '<Cmd>BufferNext<CR>', { desc = 'Move to previous buffer' })
 vim.keymap.set('n', '<C-s>', '<cmd>w<CR>', { desc = '[S]ave file' })
 
 vim.keymap.set('i', '<M-BS>', '<C-w>', { silent = true })
@@ -833,7 +837,7 @@ require('lazy').setup({
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
           --  completions whenever it has completion options available.
-          ['<C-Space>'] = cmp.mapping.complete {},
+          --['<C-space>'] = cmp.mapping.complete {},
 
           -- Think of <c-l> as moving to the right of your snippet expansion.
           --  So if you have a snippet that's like:
@@ -906,7 +910,7 @@ require('lazy').setup({
         config = function() end,
       }
 
-      require('mini.tabline').setup()
+      --require('mini.tabline').setup()
       require('mini.move').setup()
       -- Add/delete/replace surroundings (brackets, quotes, etc.)
       --
@@ -938,6 +942,23 @@ require('lazy').setup({
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
+  },
+  {
+    'romgrk/barbar.nvim',
+    dependencies = {
+      'lewis6991/gitsigns.nvim', -- OPTIONAL: for git status!
+      'nvim-tree/nvim-web-devicons', -- OPTIONAL: for file icons
+    },
+    init = function()
+      vim.g.barbar_auto_setup = false
+    end,
+    opts = {
+      -- lazy.nvim will automatically call setup for you. put your options here, anything missing will use the default:
+      -- animation = true,
+      -- insert_at_start = true,
+      -- …etc.
+    },
+    version = '^1.0.0', -- optional: only update when a new 1.x version is released
   },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
@@ -984,6 +1005,7 @@ require('lazy').setup({
   require 'custom.plugins.visual-multi',
   require 'custom.plugins.vimtex',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'custom.plugins.neogit',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
