@@ -23,6 +23,8 @@ return {
 
     -- Add your own debuggers here
     'leoluz/nvim-dap-go',
+
+    'mxsdev/nvim-dap-vscode-js', -- For reading launch.json files
   },
   keys = function(_, keys)
     local dap = require 'dap'

@@ -207,8 +207,8 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 
 --vim.keymap.set('n', '<Tab>', '<cmd>w<CR><cmd>bnext<CR>', { desc = 'Move to next buffer' })
 --vim.keymap.set('n', '<S-Tab>', '<cmd>w<CR><cmd>bprev<CR>', { desc = 'Move to previous buffer' })
-vim.keymap.set('n', '<Tab>', '<Cmd>BufferPrevious<CR>', { desc = 'Move to next buffer' })
-vim.keymap.set('n', '<S-Tab>', '<Cmd>BufferNext<CR>', { desc = 'Move to previous buffer' })
+vim.keymap.set('n', '<Tab>', '<cmd>w<CR><Cmd>BufferPrevious<CR>', { desc = 'Move to next buffer' })
+vim.keymap.set('n', '<S-Tab>', '<cmd>w<CR><Cmd>BufferNext<CR>', { desc = 'Move to previous buffer' })
 vim.keymap.set('n', '<C-s>', '<cmd>w<CR>', { desc = '[S]ave file' })
 
 vim.keymap.set('i', '<M-BS>', '<C-w>', { silent = true })
