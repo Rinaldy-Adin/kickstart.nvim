@@ -114,10 +114,14 @@ vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.expandtab = true
 
---vim.opt.spell = true
---vim.opt.spelllang = 'id,en_us'
-
-vim.opt.wrap = false
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'tex',
+  callback = function()
+    vim.opt_local.spell = true
+    vim.opt_local.spelllang = 'id,en_us'
+    vim.opt.wrap = true
+  end,
+})
 
 -- Sync clipboard between OS and Neovim.
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
