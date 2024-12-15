@@ -114,6 +114,8 @@ vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.expandtab = true
 
+vim.opt.wrap = false
+
 vim.api.nvim_create_autocmd('FileType', {
   pattern = 'tex',
   callback = function()
@@ -989,6 +991,32 @@ require('lazy').setup({
     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+  },
+  {
+    'SmiteshP/nvim-navic',
+    dependencies = 'neovim/nvim-lspconfig', -- Required dependency for LSP integration
+    config = function()
+      local navic = require 'nvim-navic'
+
+      -- Enable navic for LSP clients that support documentSymbolProvider
+      vim.lsp.handlers['textDocument/documentSymbol'] = navic.handler
+
+      -- Example setup for attaching navic to LSP servers
+      local on_attach = function(client, bufnr)
+        if client.server_capabilities.documentSymbolProvider then
+          navic.attach(client, bufnr)
+        end
+      end
+
+      -- Pass `on_attach` when configuring your LSP server
+      require('lspconfig')['gopls'].setup {
+        on_attach = on_attach,
+      }
+
+      require('lspconfig')['lua_ls'].setup {
+        on_attach = on_attach,
+      }
+    end,
   },
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
