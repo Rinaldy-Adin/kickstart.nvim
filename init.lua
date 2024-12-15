@@ -248,11 +248,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
--- Set neotree to open automatically
-vim.api.nvim_create_autocmd('VimEnter', {
-  command = 'Neotree reveal',
-})
-
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -358,6 +353,7 @@ require('lazy').setup({
         { '<leader>s', group = '[S]earch' },
         { '<leader>p', group = '[P]roject' },
         { '<leader>t', group = '[T]oggle' },
+        { '<leader>e', group = 'S[e]ssion' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
@@ -1018,7 +1014,26 @@ require('lazy').setup({
       }
     end,
   },
+  {
+    'rmagatti/auto-session',
+    lazy = false,
+    keys = {
+      -- Will use Telescope if installed or a vim.ui.select picker otherwise
+      { '<leader>er', '<cmd>SessionSearch<CR>', desc = 'Session search' },
+      { '<leader>es', '<cmd>SessionSave<CR>', desc = 'Save session' },
+      { '<leader>ea', '<cmd>SessionToggleAutoSave<CR>', desc = 'Toggle autosave' },
+    },
 
+    ---enables autocomplete for opts
+    ---@module "auto-session"
+    ---@type AutoSession.Config
+    opts = {
+      sync_root_with_cwd = true,
+      renderer = {
+        add_trailing = true,
+      },
+    },
+  },
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
