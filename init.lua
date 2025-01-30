@@ -501,6 +501,21 @@ require('lazy').setup({
       'hrsh7th/cmp-nvim-lsp',
     },
     config = function()
+      local lspconfig = require 'lspconfig'
+
+      -- Gopls setup
+      lspconfig.gopls.setup {
+        settings = {
+          gopls = {
+            analyses = {
+              unusedparams = true,
+            },
+            --staticcheck = true,
+            --gofumpt = true,
+          },
+        },
+      }
+
       -- Brief aside: **What is LSP?**
       --
       -- LSP is an initialism you've probably heard, but might not understand what it is.
@@ -562,7 +577,7 @@ require('lazy').setup({
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
-          map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+          --map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
 
           -- Fuzzy find all the symbols in your current workspace.
           --  Similar to document symbols, except searches over your entire project.
@@ -1018,6 +1033,108 @@ require('lazy').setup({
     opts = {
       -- configurations go here
     },
+  },
+  {
+    'mfussenegger/nvim-dap',
+    init = function()
+      local map = function(keys, func, desc, mode)
+        mode = mode or 'n'
+        vim.keymap.set(mode, keys, func, { desc = desc })
+      end
+
+      map('<leader>db', '<cmd>DapToggleBreakpoint<CR>', '[D]ebug: Toggle [B]reakpoint')
+
+      -- TODO: figure out how to pass function keys to allow debug continue using F5
+      -- TODO: figure out how use normal terminal inside of debugger repl
+      map('<leader>dc', require('dap').continue, '[D]ebug [C]ontinue')
+      map('<leader>dv', require('dap').step_over, '[D]ebug Step o[V]er')
+      map('<leader>di', require('dap').step_into, '[D]ebug Step [I]nto')
+      map('<leader>do', require('dap').step_out, '[D]ebug Step [O]ut')
+
+      map('<Leader>lp', function()
+        require('dap').set_breakpoint(nil, nil, vim.fn.input 'Log point message: ')
+      end, '[D]ebug: Set [L]og [P]oint')
+
+      map('<Leader>dr', require('dap').repl.open, '[D]ebug: Open [R]EPL')
+      map('<Leader>dl', require('dap').run_last, '[D]ebug: [R]un [L]ast')
+
+      map('<Leader>dh', require('dap.ui.widgets').hover, '[D]ebug: [H]over Variables', { 'n', 'v' })
+
+      map('<Leader>dp', require('dap.ui.widgets').preview, '[D]ebug: [P]review Variables', { 'n', 'v' })
+
+      map('<Leader>df', function()
+        local widgets = require 'dap.ui.widgets'
+        widgets.centered_float(widgets.frames)
+      end, '[D]ebug: [F]rames Centered Float')
+
+      map('<Leader>ds', function()
+        local widgets = require 'dap.ui.widgets'
+        widgets.centered_float(widgets.scopes)
+      end, '[D]ebug: [S]copes Centered Float')
+    end,
+  },
+  {
+    'leoluz/nvim-dap-go',
+    ft = 'go',
+    dependencies = 'mfussenegger/nvim-dap',
+    config = function(_)
+      require('dap-go').setup {
+        dap_configurations = {
+          {
+            type = 'go',
+            name = 'Attach remote',
+            mode = 'remote',
+            request = 'attach',
+          },
+        },
+        delve = {
+          port = '38697',
+        },
+      }
+
+      local map = function(keys, func, desc, mode)
+        mode = mode or 'n'
+        vim.keymap.set(mode, keys, func, { desc = 'Debug: ' .. desc })
+      end
+
+      map('<leader>dgt', function()
+        require('dap-go').debug_test()
+      end, '[D]ebug [G]o [T]est')
+
+      map('<leader>dgl', function()
+        require('dap-go').debug_last()
+      end, '[D]ebug [G]o [L]ast test')
+    end,
+  },
+  { 'nvim-neotest/nvim-nio' },
+  {
+    'rcarriga/nvim-dap-ui',
+    requires = { 'mfussenegger/nvim-dap', 'nvim-neotest/nvim-nio' },
+    config = function()
+      local map = function(keys, func, desc, mode)
+        mode = mode or 'n'
+        vim.keymap.set(mode, keys, func, { desc = desc })
+      end
+
+      local dap, dapui = require 'dap', require 'dapui'
+      require('dapui').setup()
+      dap.listeners.before.attach.dapui_config = function()
+        dapui.open()
+      end
+      dap.listeners.before.launch.dapui_config = function()
+        dapui.open()
+      end
+      dap.listeners.before.event_terminated.dapui_config = function()
+        dapui.close()
+      end
+      dap.listeners.before.event_exited.dapui_config = function()
+        dapui.close()
+      end
+
+      map('<leader>du', function()
+        dapui.toggle()
+      end, '[D]ebug: Open [U]I Sidebar')
+    end,
   },
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
