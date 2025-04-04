@@ -113,6 +113,7 @@ vim.opt.showmode = false
 vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.expandtab = true
+vim.o.softtabstop = 4
 
 vim.opt.wrap = false
 
@@ -508,6 +509,19 @@ require('lazy').setup({
             --gofumpt = true,
           },
         },
+      }
+
+      lspconfig.clangd.setup {
+        on_attach = function(client, bufnr)
+          -- Set indentation options for C/C++ files
+          vim.bo.shiftwidth = 4
+          vim.bo.tabstop = 4
+          vim.bo.softtabstop = 4
+          vim.bo.expandtab = true
+
+          -- Optional: set format options
+          vim.api.nvim_buf_set_option(bufnr, 'formatexpr', 'v:lua.vim.lsp.formatexpr()')
+        end,
       }
 
       -- Brief aside: **What is LSP?**
