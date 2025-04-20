@@ -216,6 +216,7 @@ vim.keymap.set('n', '<C-_>', ':call nerdcommenter#Comment(0, "toggle")<CR>', { n
 vim.keymap.set('v', '<C-_>', ':call nerdcommenter#Comment(0, "toggle")<CR>', { noremap = true, silent = true })
 
 vim.keymap.set('n', '<C-q>', '<cmd>lua require("mini.bufremove").delete(0, false)<CR>', { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>bo', '<cmd>BufferCloseAllButCurrent<CR>', { desc = 'Close all but current buffer' })
 
 vim.keymap.set('n', '<space>e', '<cmd>lua vim.diagnostic.open_float()<CR>', { noremap = true, silent = true, desc = 'Open diagnostic [E]rrors' })
 
@@ -1088,6 +1089,11 @@ require('lazy').setup({
     config = true,
     -- use opts = {} for passing setup options
     -- this is equivalent to setup({}) function
+  },
+  {
+    'chentoast/marks.nvim',
+    event = 'VeryLazy',
+    opts = {},
   },
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
