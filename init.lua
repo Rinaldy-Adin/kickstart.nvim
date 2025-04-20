@@ -216,7 +216,7 @@ vim.keymap.set('n', '<C-_>', ':call nerdcommenter#Comment(0, "toggle")<CR>', { n
 vim.keymap.set('v', '<C-_>', ':call nerdcommenter#Comment(0, "toggle")<CR>', { noremap = true, silent = true })
 
 vim.keymap.set('n', '<C-q>', '<cmd>lua require("mini.bufremove").delete(0, false)<CR>', { noremap = true, silent = true })
-vim.keymap.set('n', '<leader>bo', '<cmd>BufferCloseAllButCurrent<CR>', { desc = 'Close all but current buffer' })
+vim.keymap.set('n', '<leader>bo', '<cmd>BufferCloseAllButVisible<CR>', { desc = 'Close other buffers', noremap = true, silent = true })
 
 vim.keymap.set('n', '<space>e', '<cmd>lua vim.diagnostic.open_float()<CR>', { noremap = true, silent = true, desc = 'Open diagnostic [E]rrors' })
 

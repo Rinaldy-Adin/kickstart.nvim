@@ -2,7 +2,7 @@ return {
   'yetone/avante.nvim',
   event = 'VeryLazy',
   lazy = false,
-  version = false, -- Set this to "*" to always pull the latest release version, or set it to false to update to the latest code changes.
+  version = '*', -- Set this to "*" to always pull the latest release version, or set it to false to update to the latest code changes.
   opts = {
     -- add any opts here
     -- for example
@@ -12,7 +12,7 @@ return {
         __inherited_from = 'openai',
         endpoint = 'https://openrouter.ai/api/v1',
         api_key_name = 'OPENROUTER_API_KEY',
-        model = 'openai/gpt-4o-mini',
+        model = 'anthropic/claude-3.5-sonnet',
       },
     },
   },
