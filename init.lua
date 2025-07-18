@@ -175,6 +175,12 @@ vim.opt.scrolloff = 10
 
 vim.g.vimtex_view_method = 'zathura'
 
+vim.o.foldmethod = 'expr'
+vim.o.foldexpr = 'v:lua.vim.treesitter.foldexpr()' -- fallback for now
+vim.o.foldlevel = 99
+vim.o.foldlevelstart = 99
+vim.o.foldenable = true
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -254,6 +260,8 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
   end
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
+
+vim.cmd 'autocmd BufWinEnter,BufWritePost * :redrawstatus'
 
 -- [[ Configure and install plugins ]]
 --
@@ -769,6 +777,7 @@ require('lazy').setup({
         local disable_filetypes = {
           --c = true,
           --cpp = true,
+          php = true,
         }
         local lsp_format_opt
         if disable_filetypes[vim.bo[bufnr].filetype] then
@@ -807,6 +816,14 @@ require('lazy').setup({
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'
     end,
+    opts = {
+      highlights = {
+        Folded = { fg = '#c678dd', bg = '#2c313c', bold = true, italic = true },
+        FoldColumn = { fg = '#c678dd', bg = '#21252b', bold = true },
+        UfoFoldIcon = { fg = '#c678dd', bold = true },
+        UfoFoldSuffix = { fg = '#c678dd', italic = true },
+      },
+    },
   },
 
   -- Highlight todo, notes, etc in comments
@@ -1094,6 +1111,73 @@ require('lazy').setup({
     'chentoast/marks.nvim',
     event = 'VeryLazy',
     opts = {},
+  },
+  {
+    'kevinhwang91/nvim-ufo',
+    dependencies = { 'kevinhwang91/promise-async' },
+    event = 'BufReadPost', -- makes sure it's loaded after a file is opened
+    config = function()
+      -- Set the fold expression now that UFO is loaded
+      vim.o.foldmethod = 'expr'
+      vim.o.foldexpr = "v:lua.require'ufo'.foldexpr()"
+
+      vim.api.nvim_set_hl(0, 'UfoFoldIcon', { fg = '#c678dd', bold = true })
+      vim.api.nvim_set_hl(0, 'UfoFoldSuffix', { fg = '#c678dd', italic = true })
+
+      require('ufo').setup {
+        provider_selector = function()
+          return { 'treesitter', 'indent' }
+        end,
+        fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate)
+          -- virtText: existing text (first line of fold)
+          -- add a purple fold icon at the front and a purple line count suffix
+          local newVirtText = {}
+
+          -- purple icon
+          table.insert(newVirtText, { ' ', 'UfoFoldIcon' })
+
+          -- original text, truncated to fit width minus suffix
+          local suffix = ('  (%d lines)'):format(endLnum - lnum)
+          local sufWidth = vim.fn.strdisplaywidth(suffix)
+          local targetWidth = width - sufWidth
+          local curWidth = 0
+          for _, chunk in ipairs(virtText) do
+            local chunkText, hlGroup = chunk[1], chunk[2]
+            local chunkWidth = vim.fn.strdisplaywidth(chunkText)
+            if targetWidth > curWidth + chunkWidth then
+              table.insert(newVirtText, chunk)
+            else
+              local truncated = truncate(chunkText, targetWidth - curWidth)
+              table.insert(newVirtText, { truncated, hlGroup })
+              break
+            end
+            curWidth = curWidth + chunkWidth
+          end
+
+          -- purple suffix w/ line count
+          table.insert(newVirtText, { suffix, 'UfoFoldSuffix' })
+          return newVirtText
+        end,
+      }
+
+      -- Optional keymaps
+      vim.keymap.set('n', 'zn', require('ufo').openAllFolds)
+      vim.keymap.set('n', 'zM', require('ufo').closeAllFolds)
+      vim.keymap.set('n', 'zp', function()
+        local winid = require('ufo').peekFoldedLinesUnderCursor()
+        if not winid then
+          vim.cmd 'normal! zv'
+        end
+      end, { desc = 'Peek fold' })
+    end,
+  },
+  {
+    'iamcco/markdown-preview.nvim',
+    cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
+    ft = { 'markdown' },
+    build = function()
+      vim.fn['mkdp#util#install']()
+    end,
   },
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and

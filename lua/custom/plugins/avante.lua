@@ -14,6 +14,11 @@ return {
         api_key_name = 'OPENROUTER_API_KEY',
         model = 'anthropic/claude-3.5-sonnet',
       },
+      claude = {
+        endpoint = 'https://api.anthropic.com',
+        --api_key_name = 'OPENROUTER_API_KEY',
+        model = 'claude-3-5-sonnet-20241022',
+      },
     },
   },
   -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
