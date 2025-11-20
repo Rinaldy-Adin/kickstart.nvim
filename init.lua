@@ -115,6 +115,7 @@ vim.opt.tabstop = 4
 vim.opt.expandtab = true
 vim.o.softtabstop = 4
 
+vim.opt.colorcolumn = '80'
 vim.opt.wrap = false
 
 vim.api.nvim_create_autocmd('FileType', {
@@ -125,6 +126,12 @@ vim.api.nvim_create_autocmd('FileType', {
     vim.opt.wrap = true
   end,
 })
+
+vim.filetype.add {
+  pattern = {
+    ['.*%.blade%.php'] = 'blade',
+  },
+}
 
 -- Sync clipboard between OS and Neovim.
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
@@ -594,7 +601,7 @@ require('lazy').setup({
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
-          --map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+          map('<leader>st', require('telescope.builtin').lsp_document_symbols, '[D]ocument [T]okens(Symbols)')
 
           -- Fuzzy find all the symbols in your current workspace.
           --  Similar to document symbols, except searches over your entire project.
@@ -937,6 +944,9 @@ require('lazy').setup({
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
   },
   {
+    'jwalton512/vim-blade',
+  },
+  {
     'rmagatti/auto-session',
     lazy = false,
     keys = {
@@ -1179,6 +1189,10 @@ require('lazy').setup({
       vim.fn['mkdp#util#install']()
     end,
   },
+  --{
+  --'nvim-lualine/lualine.nvim',
+  --dependencies = { 'nvim-tree/nvim-web-devicons' },
+  --},
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
@@ -1203,6 +1217,7 @@ require('lazy').setup({
   --require 'custom.plugins.nvim-cmp',
   require 'custom.plugins.blink-cmp',
   require 'custom.plugins.colorful-menu',
+  require 'custom.plugins.text-case',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
