@@ -682,8 +682,10 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        clangd = {},
-        gopls = {},
+        -- clangd and gopls are configured above via `vim.lsp.config`/`vim.lsp.enable`
+        -- directly; keeping them here too would set them up a second time
+        -- through the legacy `lspconfig[server].setup()` loop below, producing
+        -- duplicate LSP clients (and duplicate completion/diagnostics entries).
         docker_compose_language_service = {},
         dockerls = {},
         -- pyright = {},
