@@ -379,7 +379,7 @@ require('lazy').setup({
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
     event = 'VimEnter',
-    branch = '0.1.x',
+    version = '*',
     dependencies = {
       'nvim-lua/plenary.nvim',
       { -- If encountering errors, see telescope-fzf-native README for installation instructions
@@ -515,9 +515,10 @@ require('lazy').setup({
       local lspconfig = require 'lspconfig'
 
       -- Gopls setup
-      lspconfig.gopls.setup {
+      vim.lsp.config('gopls', {
         settings = {
           gopls = {
+            semanticTokens = true,
             analyses = {
               unusedparams = true,
             },
@@ -525,9 +526,10 @@ require('lazy').setup({
             --gofumpt = true,
           },
         },
-      }
+      })
+      vim.lsp.enable 'gopls'
 
-      lspconfig.clangd.setup {
+      vim.lsp.config('clangd', {
         on_attach = function(client, bufnr)
           -- Set indentation options for C/C++ files
           vim.bo.shiftwidth = 4
@@ -538,7 +540,8 @@ require('lazy').setup({
           -- Optional: set format options
           vim.api.nvim_buf_set_option(bufnr, 'formatexpr', 'v:lua.vim.lsp.formatexpr()')
         end,
-      }
+      })
+      vim.lsp.enable 'clangd'
 
       -- Brief aside: **What is LSP?**
       --
@@ -625,7 +628,7 @@ require('lazy').setup({
           --
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
           local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
+          if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
               buffer = event.buf,
@@ -652,7 +655,7 @@ require('lazy').setup({
           -- code, if the language server you are using supports them
           --
           -- This may be unwanted, since they displace some of your code
-          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
+          if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
             map('<leader>th', function()
               vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
             end, '[T]oggle Inlay [H]ints')
@@ -903,10 +906,16 @@ require('lazy').setup({
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
-    main = 'nvim-treesitter.configs', -- Sets main module to use for opts
-    -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-    opts = {
-      ensure_installed = {
+    config = function()
+      -- NOTE: on the `main` branch rewrite, `setup()` no longer takes
+      -- `ensure_installed`/`highlight`/`indent` opts (those keys are
+      -- silently ignored). Parsers must be installed explicitly via
+      -- `.install()`, and highlighting/indent are enabled per-buffer via
+      -- Neovim's built-in `vim.treesitter.start()` / `indentexpr`.
+      local ts = require 'nvim-treesitter'
+      ts.setup {}
+
+      local ensure_installed = {
         'bash',
         'c',
         'diff',
@@ -923,19 +932,30 @@ require('lazy').setup({
         'query',
         'vim',
         'vimdoc',
-      },
-      -- Autoinstall languages that are not installed
-      auto_install = true,
-      highlight = {
-        enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
-        disable = { 'latex' },
-      },
-      indent = { enable = true, disable = { 'ruby' } },
-    },
+        'go',
+      }
+      ts.install(ensure_installed)
+
+      vim.api.nvim_create_autocmd('FileType', {
+        callback = function(args)
+          -- 'latex' depends on vim's regex highlighting for indent rules
+          if args.match == 'latex' then
+            return
+          end
+
+          local lang = vim.treesitter.language.get_lang(args.match) or args.match
+          if not vim.treesitter.language.add(lang) then
+            return
+          end
+
+          vim.treesitter.start()
+
+          if args.match ~= 'ruby' then
+            vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
+      })
+    end,
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
     --
@@ -1212,7 +1232,6 @@ require('lazy').setup({
   require 'custom.plugins.vimtex',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
   require 'custom.plugins.neogit',
-  require 'custom.plugins.avante',
   --require 'custom.plugins.indent-blankline',
   --require 'custom.plugins.nvim-cmp',
   require 'custom.plugins.blink-cmp',
@@ -1244,6 +1263,7 @@ require('lazy').setup({
       task = '📌',
       lazy = '💤 ',
     },
+    concurrency = 4,
   },
 })
 
